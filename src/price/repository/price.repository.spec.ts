@@ -1,7 +1,10 @@
 import { Token } from '@common';
 import { InfluxConfig } from '@config';
 import { InfluxClient } from '@database';
+import { QueryApi, WriteApi } from '@influxdata/influxdb-client';
 import { Test, TestingModule } from '@nestjs/testing';
+import { SavePriceRateDto } from '../dto';
+import { getPointFromSavePriceRateDto } from './';
 import { PriceRepository } from './price.repository';
 
 describe('PriceRepository', () => {
@@ -12,12 +15,19 @@ describe('PriceRepository', () => {
     url: 'http://localhost:8086',
     token: 'token',
   };
+  let mockQueryApi: Partial<QueryApi>;
+  let mockWriteApi: Partial<WriteApi>;
 
   beforeEach(async () => {
-    mockInfluxClient.getQueryApi = jest.fn().mockReturnValue({
+    mockQueryApi = {
       collectRows: jest.fn().mockResolvedValue({}),
-    });
-    mockInfluxClient.getWriteApi = jest.fn().mockReturnValue({});
+    };
+    mockWriteApi = {
+      writePoints: jest.fn(),
+      close: jest.fn(),
+    };
+    mockInfluxClient.getQueryApi = jest.fn().mockReturnValue(mockQueryApi);
+    mockInfluxClient.getWriteApi = jest.fn().mockReturnValue(mockWriteApi);
     mockInfluxClient.getConfig = jest.fn().mockReturnValue(mockConfig);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -37,9 +47,7 @@ describe('PriceRepository', () => {
   describe('queryLatestPriceRate', () => {
     it('should delegate to queryAPI', async () => {
       const res = await repository.queryLatestPriceRate(Token.ETH, Token.USD);
-      expect(
-        mockInfluxClient.getQueryApi!({ org: mockConfig.org }).collectRows,
-      ).toBeCalledWith(
+      expect(mockQueryApi.collectRows).toBeCalledWith(
         `from(bucket: "price")
                   |> range(start: -24h)
                   |> filter(fn: (r) => r["_measurement"] == "${Token.ETH}")
@@ -49,6 +57,23 @@ describe('PriceRepository', () => {
                   |> yield(name: \"last\")`,
       );
       expect(res).toEqual({});
+    });
+  });
+
+  describe('savePriceRates', () => {
+    it('should save points of price rate', async () => {
+      const priceRates: SavePriceRateDto[] = [
+        {
+          fromToken: Token.BNB,
+          toToken: Token.USD,
+          price: 100,
+          timestamp: new Date(),
+        },
+      ];
+      const points = priceRates.map(getPointFromSavePriceRateDto);
+      await repository.savePriceRates(priceRates);
+      expect(mockWriteApi.writePoints).toBeCalledWith(points);
+      expect(mockWriteApi.close).toBeCalledTimes(1);
     });
   });
 });

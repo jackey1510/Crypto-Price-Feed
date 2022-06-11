@@ -37,33 +37,24 @@ export function ClassLogger() {
         }
         const logMetaString = JSON.stringify(logMeta);
 
-        const exitLog = (result: any) => {
-          logger.log(
-            `[${propertyName}] Completed with result: ${result}`,
-            logMetaString,
-          );
+        const exitLog = () => {
+          logger.log(`[${propertyName}] Completed with ${logMetaString}`);
         };
 
         const failLog = (error: unknown): Error => {
-          logger.error(`[${propertyName}] Failed: ${error}`, logMetaString);
+          logger.error(`[${propertyName}] Failed: ${error}, ${logMetaString}`);
           if (error instanceof Error) return error;
           return new Error(`${error}`);
         };
 
         try {
-          logger.log(`[${propertyName}] Start with params: `, logMetaString);
+          logger.log(`[${propertyName}] Start with params: ${logMetaString}`);
           const result = originalMethod.apply(this, args);
-          // work around to support async functions.
+          // support async functions.
           if (typeof result === 'object' && typeof result.then === 'function') {
             result.then(exitLog, failLog);
-            // we defer responsibility to the caller of the method to handle the error.
-            // but we need to catch the error otherwise we will get an unhandled error.
-            // notice we return the original result not the promise with the logging call.
-            // if (typeof promise.catch === 'function') {
-            //   promise.catch(failLog);
-            // }
           } else {
-            exitLog(result);
+            exitLog();
           }
 
           return result;

@@ -45,12 +45,10 @@ describe('ClassLogger', () => {
     };
     expect(logger.log).toHaveBeenCalledTimes(2);
     expect(logger.log).toBeCalledWith(
-      `[mockFunc] Start with params: `,
-      JSON.stringify(logMeta),
+      `[mockFunc] Start with params: ${JSON.stringify(logMeta)}`,
     );
     expect(logger.log).toBeCalledWith(
-      `[mockFunc] Completed with result: 12`,
-      JSON.stringify(logMeta),
+      `[mockFunc] Completed with ${JSON.stringify(logMeta)}`,
     );
   });
 
@@ -69,12 +67,10 @@ describe('ClassLogger', () => {
     expect(logger.log).toHaveBeenCalledTimes(1);
     expect(logger.error).toHaveBeenCalledTimes(1);
     expect(logger.log).toBeCalledWith(
-      `[failFunc] Start with params: `,
-      JSON.stringify(logMeta),
+      `[failFunc] Start with params: ${JSON.stringify(logMeta)}`,
     );
     expect(logger.error).toBeCalledWith(
-      `[failFunc] Failed: Error: Special error`,
-      JSON.stringify(logMeta),
+      `[failFunc] Failed: Error: Special error, ${JSON.stringify(logMeta)}`,
     );
   });
 
@@ -87,12 +83,12 @@ describe('ClassLogger', () => {
     expect(logger.log).toHaveBeenCalledTimes(1);
     expect(logger.error).toHaveBeenCalledTimes(1);
     expect(logger.log).toBeCalledWith(
-      `[failAsyncFunc] Start with params: `,
-      JSON.stringify(logMeta),
+      `[failAsyncFunc] Start with params: ${JSON.stringify(logMeta)}`,
     );
     expect(logger.error).toBeCalledWith(
-      `[failAsyncFunc] Failed: Error: Special error`,
-      JSON.stringify(logMeta),
+      `[failAsyncFunc] Failed: Error: Special error, ${JSON.stringify(
+        logMeta,
+      )}`,
     );
   });
 });

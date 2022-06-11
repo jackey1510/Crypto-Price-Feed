@@ -1,9 +1,10 @@
-import { Token } from '@common';
+import { ClassLogger, Token } from '@common';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ContractFactory } from '../contract';
 import { LatestRoundData } from '../dto/response.dto';
 
 @Injectable()
+@ClassLogger()
 export class PriceFeedService {
   constructor(private readonly contractFactory: ContractFactory) {}
 

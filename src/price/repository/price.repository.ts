@@ -1,4 +1,4 @@
-import { Token } from '@common';
+import { ClassLogger, Token } from '@common';
 import { InfluxClient } from '@database';
 import {
   QueryApi,
@@ -7,9 +7,11 @@ import {
   WritePrecisionType,
 } from '@influxdata/influxdb-client';
 import { Injectable } from '@nestjs/common';
-import { PricePairResultDto } from '../dto';
+import { getPointFromSavePriceRateDto } from '.';
+import { PricePairResultDto, SavePriceRateDto } from '../dto';
 
 @Injectable()
+@ClassLogger()
 export class PriceRepository {
   private static BUCKET = 'price';
   private org: string;
@@ -20,7 +22,7 @@ export class PriceRepository {
     this.queryApi = this.influxClient.getQueryApi({ org: this.org });
   }
 
-  public getWriteApi(
+  private getWriteApi(
     precision?: WritePrecisionType,
     writeOptions?: Partial<WriteOptions>,
   ): WriteApi {
@@ -45,5 +47,12 @@ export class PriceRepository {
                   |> aggregateWindow(every: ${window}, fn: last, createEmpty: false)
                   |> yield(name: "last")`;
     return this.queryApi.collectRows(query);
+  }
+
+  async savePriceRates(priceRates: SavePriceRateDto[]) {
+    const points = priceRates.map(getPointFromSavePriceRateDto);
+    const writerApi = this.getWriteApi();
+    writerApi.writePoints(points);
+    return writerApi.close();
   }
 }

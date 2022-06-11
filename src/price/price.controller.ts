@@ -1,16 +1,15 @@
-import { Get, Post, Query } from '@nestjs/common';
-import { Controller } from '@nestjs/common';
-import { PriceService } from './service';
 import { Token } from '@common';
-import { PricePairResultDto } from './dto';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { PricePairResultDto, SavePriceRatesArrayDto } from './dto';
+import { PriceService } from './service';
 
 @Controller('price')
 export class PriceController {
   constructor(private priceService: PriceService) {}
 
-  @Post()
-  async save() {
-    return this.priceService.save();
+  @Post('price-rates')
+  async(@Body() savePriceRateDtos: SavePriceRatesArrayDto) {
+    return this.priceService.savePriceRates(savePriceRateDtos.savePriceRates);
   }
   @Get()
   async queryLatestTokenPriceToUSD(

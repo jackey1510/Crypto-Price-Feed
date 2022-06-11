@@ -1,3 +1,5 @@
+import { Token } from '@common';
+
 export class PricePairResultDto {
   result: string;
   table: number;
@@ -6,6 +8,6 @@ export class PricePairResultDto {
   _time: Date;
   _value: number;
   _field: string;
-  _measurement: string;
-  pair: string;
+  _measurement: Token;
+  pair: Token;
 }

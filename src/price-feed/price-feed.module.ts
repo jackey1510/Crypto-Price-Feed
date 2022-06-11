@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
 import { ContractFactory } from './contract';
-import { PriceFeedService } from './service';
+import { PriceFeedService, SchedulerService } from './service';
 import { PriceFeedController } from './price-feed.controller';
 
 @Module({
@@ -21,6 +21,7 @@ import { PriceFeedController } from './price-feed.controller';
         return new ContractFactory(provider, priceOracleConfig);
       },
     },
+    SchedulerService,
   ],
   controllers: [PriceFeedController],
 })
