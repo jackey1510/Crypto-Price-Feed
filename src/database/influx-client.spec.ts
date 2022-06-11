@@ -1,6 +1,5 @@
 import { InfluxConfig } from '@config';
-import { ConfigService } from '@nestjs/config';
-import { TestingModule, Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { InfluxClient } from './influx-client';
 
 const mockConfig: InfluxConfig = {
@@ -11,15 +10,14 @@ const mockConfig: InfluxConfig = {
 
 describe('InfluxClient', () => {
   let influxClient: InfluxClient;
-  const mockConfigService: Partial<ConfigService> = {};
+
   beforeEach(async () => {
-    mockConfigService.get = jest.fn().mockReturnValue(mockConfig);
     const app: TestingModule = await Test.createTestingModule({
       providers: [
         InfluxClient,
         {
-          provide: ConfigService,
-          useValue: mockConfigService,
+          provide: 'INFLUX_CONFIG',
+          useValue: mockConfig,
         },
       ],
     }).compile();

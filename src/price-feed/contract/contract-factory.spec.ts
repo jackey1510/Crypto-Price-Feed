@@ -1,6 +1,5 @@
 import { Token } from '@common';
 import { PriceOracleConfig } from '@config';
-import { BadRequestException } from '@nestjs/common';
 import { ethers } from 'ethers';
 import { ContractFactory } from './contract-factory';
 
@@ -34,10 +33,10 @@ describe('ContractFactory', () => {
         factory.getTokenPairPriceFeedContract(Token.BTC, Token.USD),
       ).toBeInstanceOf(ethers.Contract);
     });
-    it('should throw BadRequestException', () => {
-      expect(() =>
+    it('should return null if not found', () => {
+      expect(
         factory.getTokenPairPriceFeedContract(Token.BNB, Token.USD),
-      ).toThrowError(BadRequestException);
+      ).toBeNull();
     });
   });
 });

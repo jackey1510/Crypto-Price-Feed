@@ -28,8 +28,8 @@ const mockObject = new MockClass();
 
 describe('ClassLogger', () => {
   beforeEach(() => {
-    jest.spyOn(logger, 'log');
-    jest.spyOn(logger, 'error');
+    jest.spyOn(logger, 'log').mockImplementation();
+    jest.spyOn(logger, 'error').mockImplementation();
   });
   afterEach(() => {
     jest.clearAllMocks();

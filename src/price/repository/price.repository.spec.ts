@@ -41,10 +41,12 @@ describe('PriceRepository', () => {
         mockInfluxClient.getQueryApi!({ org: mockConfig.org }).collectRows,
       ).toBeCalledWith(
         `from(bucket: "price")
-                  |> range(start: -2h, stop: -0s)
+                  |> range(start: -24h)
                   |> filter(fn: (r) => r["_measurement"] == "${Token.ETH}")
                   |> filter(fn: (r) => r["_field"] == "price")
-                  |> filter(fn: (r) => r["pair"] == "${Token.USD}")`,
+                  |> filter(fn: (r) => r["pair"] == "${Token.USD}")
+                  |> aggregateWindow(every: 24h, fn: last, createEmpty: false)
+                  |> yield(name: \"last\")`,
       );
       expect(res).toEqual({});
     });
