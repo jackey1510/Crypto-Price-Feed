@@ -1,5 +1,5 @@
 import { ClassLogger, Token } from '@common';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PriceService, SavePriceRateDto } from '@price';
 import { ContractFactory } from '../contract';
 import { LatestRoundData } from '../dto/response.dto';
@@ -9,8 +9,6 @@ import { LatestRoundData } from '../dto/response.dto';
 export class PriceFeedService {
   constructor(
     private readonly contractFactory: ContractFactory,
-    // private schedulerRegistry: SchedulerRegistry,
-    @Inject('PRICE_FETCH_INTERVAL')
     private readonly priceService: PriceService,
   ) {}
 

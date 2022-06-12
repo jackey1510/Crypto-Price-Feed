@@ -14,7 +14,6 @@ describe('PriceFeedService', () => {
   let mockContact: Partial<PriceFeedContract>;
   let mockSchedulerRegistry: Partial<SchedulerRegistry>;
   let mockPriceService: Partial<PriceService>;
-  const priceFetchInterval = ` 0 * * * * *`;
   let mockLatestRoundData: [
     BigNumber,
     BigNumber,
@@ -53,10 +52,7 @@ describe('PriceFeedService', () => {
       providers: [
         PriceFeedService,
         { provide: ContractFactory, useValue: mockContractFactory },
-        {
-          provide: 'PRICE_FETCH_INTERVAL',
-          useValue: priceFetchInterval,
-        },
+
         { provide: SchedulerRegistry, useValue: mockSchedulerRegistry },
         { provide: PriceService, useValue: mockPriceService },
       ],
