@@ -52,7 +52,9 @@ describe('PriceRepository', () => {
                   |> range(start: -2h)
                   |> filter(fn: (r) => r["_measurement"] == "${Token.ETH}")
                   |> filter(fn: (r) => r["_field"] == "${Token.USD}")
-                  |> aggregateWindow(every: 24h, fn: last, createEmpty: false)
+                  |> aggregateWindow(every: 1s, fn: last, createEmpty: false)
+                  |> sort(columns: ["_time"], desc: true)
+                  |> limit(n:1, offset: 0)
                   |> yield(name: \"last\")`,
       );
       expect(res).toEqual({});

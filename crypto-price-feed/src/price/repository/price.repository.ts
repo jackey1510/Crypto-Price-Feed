@@ -43,7 +43,9 @@ export class PriceRepository {
                   |> range(start: -${window})
                   |> filter(fn: (r) => r["_measurement"] == "${fromToken}")
                   |> filter(fn: (r) => r["_field"] == "${toToken}")
-                  |> aggregateWindow(every: ${window}, fn: last, createEmpty: false)
+                  |> aggregateWindow(every: 1s, fn: last, createEmpty: false)
+                  |> sort(columns: ["_time"], desc: true)
+                  |> limit(n:1, offset: 0)
                   |> yield(name: "last")`;
     return this.queryApi.collectRows(query);
   }
