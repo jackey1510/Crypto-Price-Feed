@@ -10,3 +10,17 @@ export class PricePairResultDto {
   _field: Token;
   _measurement: Token;
 }
+
+export class PriceRateDto {
+  fromToken: Token;
+  toToken: Token;
+  price: number;
+  time: Date;
+
+  constructor(pricePairResultDto: PricePairResultDto) {
+    this.fromToken = pricePairResultDto._measurement;
+    this.toToken = pricePairResultDto._field;
+    this.price = pricePairResultDto._value;
+    this.time = pricePairResultDto._time;
+  }
+}

@@ -1,6 +1,6 @@
 import { ClassLogger, Token } from '@common';
-import { Injectable } from '@nestjs/common';
-import { SavePriceRateDto } from '../dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PriceRateDto, SavePriceRateDto } from '../dto';
 import { PriceRepository } from '../repository';
 
 @Injectable()
@@ -12,10 +12,14 @@ export class PriceService {
     return this.priceRepository.savePriceRates(savePriceRateDtos);
   }
   async queryLatestPriceRate(fromToken: Token, toToken: Token) {
-    const [result] = await this.priceRepository.queryLatestPriceRate(
+    const result = await this.priceRepository.queryLatestPriceRate(
       fromToken,
       toToken,
     );
-    return result;
+    if (!result?.length)
+      throw new NotFoundException(
+        `Price Not Found for ${fromToken}/${toToken}`,
+      );
+    return new PriceRateDto(result[0]);
   }
 }

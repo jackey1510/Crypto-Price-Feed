@@ -49,7 +49,7 @@ describe('PriceRepository', () => {
       const res = await repository.queryLatestPriceRate(Token.ETH, Token.USD);
       expect(mockQueryApi.collectRows).toBeCalledWith(
         `from(bucket: "price")
-                  |> range(start: -24h)
+                  |> range(start: -2h)
                   |> filter(fn: (r) => r["_measurement"] == "${Token.ETH}")
                   |> filter(fn: (r) => r["_field"] == "${Token.USD}")
                   |> aggregateWindow(every: 24h, fn: last, createEmpty: false)

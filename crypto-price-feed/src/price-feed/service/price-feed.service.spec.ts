@@ -1,4 +1,4 @@
-import { Token } from '@common';
+import { LoggerFactory, Token } from '@common';
 import { BadRequestException } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -23,6 +23,9 @@ describe('PriceFeedService', () => {
   ];
 
   beforeEach(async () => {
+    jest
+      .spyOn(LoggerFactory, 'getLogger')
+      .mockReturnValue({ log: jest.fn(), error: jest.fn() } as any);
     jest.useFakeTimers('modern');
     const timestamp = Math.floor(Date.now() / 1000);
     mockLatestRoundData = [
