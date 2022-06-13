@@ -1,27 +1,5 @@
 version: "3.9"
 services:
-  crypto-price-feed:
-    build: 
-      context: ./crypto-price-feed
-      dockerfile: ./nestjs.dockerfile
-    ports:
-      - "8080:8080"
-    env_file:
-      - ./crypto-price-feed/.env
-  scheduler:
-    build: 
-      context: ./task-scheduler
-      dockerfile: ./nestjs.dockerfile
-    ports:
-      - "8081:8081"
-    environment:
-      - PORT=8081
-      - CRYPTO_PRICE_FEED_URL=crypto-price-feed:8080
-      - PRICE_FETCH_INTERVAL='0 * * * * *'
-      - PRICE_FETCH_START_NOW=true
-      - CRYPTO_PRICE_FEED_URL=true
-    # env_file:
-    #   - ./task-scheduler/.env
   influxdb:
     image: influxdb:2.0.9
     ports:
@@ -34,4 +12,37 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET=price
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=secret-token
     volumes:
-      - $PWD/volumes:/var/lib/influxdb
+      - $PWD/volumes:/var/lib/influxdb2
+  crypto-price-feed:
+    build: 
+      context: ./crypto-price-feed
+      dockerfile: $PWD/nestjs.dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - INFLUX_DB_URL=http://influxdb:8086
+      - INFLUX_DB_TOKEN=secret-token
+      - INFLUX_DB_ORG=crypto-price-feed
+    env_file:
+      - ./crypto-price-feed/.env
+    depends_on:
+      - influxdb
+    links:
+      - influxdb
+  scheduler:
+    build: 
+      context: ./task-scheduler
+      dockerfile: $PWD/nestjs.dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - CRYPTO_PRICE_FEED_URL=http://crypto-price-feed:8080
+      - PRICE_FETCH_INTERVAL=0 * * * * *
+      - PRICE_FETCH_START_NOW=true
+      - PRICE_FETCH_RUN_ON_INIT=true
+    links:
+      - crypto-price-feed
+    # env_file:
+    #   - ./task-scheduler/.env
+  
