@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PriceFeedController } from './price-feed.controller';
 import { PriceFeedService, SchedulerService } from './service';
 import { CryptoPriceFeedConfig, PriceFetchTaskConfig } from '@config';
 
@@ -29,6 +28,6 @@ import { CryptoPriceFeedConfig, PriceFetchTaskConfig } from '@config';
     },
     PriceFeedService,
   ],
-  controllers: [PriceFeedController],
+  controllers: [],
 })
 export class PriceFeedModule {}
