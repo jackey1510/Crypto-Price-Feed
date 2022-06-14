@@ -4,11 +4,11 @@ import {
   QueryApi,
   WriteApi,
   WriteOptions,
-  WritePrecisionType,
+  WritePrecisionType
 } from '@influxdata/influxdb-client';
 import { Injectable } from '@nestjs/common';
 import { getPointFromSavePriceRateDto } from '.';
-import { PricePairResultDto, SavePriceRateDto } from '../dto';
+import { PricePairResultDto, QueryPriceRateDto, SavePriceRateDto } from '../dto';
 
 @Injectable()
 @ClassLogger()
@@ -55,5 +55,19 @@ export class PriceRepository {
     const writerApi = this.getWriteApi();
     writerApi.writePoints(points);
     return writerApi.close();
+  }
+
+  async queryPriceRateAtTime(queryPriceRateDto: QueryPriceRateDto): Promise<PricePairResultDto[]> {
+    const startTime = new Date(queryPriceRateDto.time.getTime() - queryPriceRateDto.minuteTolerance * 60 * 1000);
+    const query = `
+      from(bucket: "${PriceRepository.BUCKET}")
+      |> range(start: ${startTime.toISOString()}, stop: ${queryPriceRateDto.time.toISOString()})
+      |> filter(fn: (r) => r["_measurement"] == "${queryPriceRateDto.fromToken}")
+      |> filter(fn: (r) => r["_field"] == "USD")
+      |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n:1, offset: 0)
+      |> yield(name: "last")`
+    return this.queryApi.collectRows(query);
   }
 }

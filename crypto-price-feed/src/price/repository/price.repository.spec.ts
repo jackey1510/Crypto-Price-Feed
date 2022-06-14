@@ -3,7 +3,7 @@ import { InfluxConfig } from '@config';
 import { InfluxClient } from '@database';
 import { QueryApi, WriteApi } from '@influxdata/influxdb-client';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SavePriceRateDto } from '../dto';
+import { QueryPriceRateDto, SavePriceRateDto } from '../dto';
 import { getPointFromSavePriceRateDto } from './';
 import { PriceRepository } from './price.repository';
 
@@ -77,4 +77,31 @@ describe('PriceRepository', () => {
       expect(mockWriteApi.close).toBeCalledTimes(1);
     });
   });
+
+  describe('queryPriceRateAtTime', () => {
+    beforeEach(()=> {
+      jest.useFakeTimers('modern');
+    })
+    it('should query the at the time range', async () => {
+      const mockPayload: QueryPriceRateDto = {
+        fromToken: Token.BNB,
+        toToken: Token.USD,
+        time: new Date(),
+        minuteTolerance: 15
+      }
+
+      const start = new Date(mockPayload.time.getTime() - mockPayload.minuteTolerance * 60 * 1000);
+      const query = `
+      from(bucket: "price")
+      |> range(start: ${start.toISOString()}, stop: ${mockPayload.time.toISOString()})
+      |> filter(fn: (r) => r["_measurement"] == "${mockPayload.fromToken}")
+      |> filter(fn: (r) => r["_field"] == "USD")
+      |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n:1, offset: 0)
+      |> yield(name: "last")`
+      await repository.queryPriceRateAtTime(mockPayload);
+      expect(mockQueryApi.collectRows).toBeCalledWith(query);
+    })
+  })
 });

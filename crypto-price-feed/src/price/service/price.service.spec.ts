@@ -1,7 +1,7 @@
 import { Token } from '@common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PriceRateDto } from '../dto';
+import { PriceRateDto, QueryPriceRateDto } from '../dto';
 import { PriceRepository } from '../repository';
 import { PriceService } from './price.service';
 
@@ -23,6 +23,7 @@ describe('PriceService', () => {
     mockPriceRepository = {
       queryLatestPriceRate: jest.fn().mockResolvedValue([mockPricePairResult]),
       savePriceRates: jest.fn(),
+      queryPriceRateAtTime: jest.fn().mockResolvedValue([mockPricePairResult])
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -57,6 +58,37 @@ describe('PriceService', () => {
     it('should delegate to repository.savePriceRates', async () => {
       await service.savePriceRates([]);
       expect(mockPriceRepository.savePriceRates).toBeCalledWith([]);
+    });
+  });
+
+  describe('queryPriceRateAtTime', () => {
+    beforeEach(() => {
+      jest.useFakeTimers('modern');
+    });
+
+    it('should return price rate dto', async () => {
+      const queryPriceRateDto: QueryPriceRateDto = {
+        fromToken: Token.BNB,
+        toToken: Token.USD,
+        time: new Date(),
+        minuteTolerance: 0,
+      };
+      const res = await service.queryPriceRateAtTime(queryPriceRateDto);
+      expect(res).toStrictEqual(new PriceRateDto(mockPricePairResult))
+    });
+    it('should throw NotFoundException when no result', async () => {
+      const queryPriceRateDto: QueryPriceRateDto = {
+        fromToken: Token.BNB,
+        toToken: Token.USD,
+        time: new Date(),
+        minuteTolerance: 0,
+      };
+      mockPriceRepository.queryPriceRateAtTime = jest
+        .fn()
+        .mockResolvedValue([]);
+      await expect(
+        service.queryPriceRateAtTime(queryPriceRateDto),
+      ).rejects.toThrowError(NotFoundException);
     });
   });
 });
