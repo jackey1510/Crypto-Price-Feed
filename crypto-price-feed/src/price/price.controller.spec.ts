@@ -10,6 +10,7 @@ describe('PriceController', () => {
   beforeEach(async () => {
     mockPriceService = {
       queryLatestPriceRate: jest.fn(),
+      queryPriceRateAtTime: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [{ provide: PriceService, useValue: mockPriceService }],
@@ -32,4 +33,18 @@ describe('PriceController', () => {
       );
     });
   });
+
+  describe('queryTokenPriceToUSDAtTime', () => {
+    beforeEach(() => {
+      jest.useFakeTimers('modern')
+    })
+    afterEach(() => {
+      jest.useRealTimers();
+    })
+    it('should call priceService.queryTokenPriceToUSDAtTime', async () => {
+      const mockDto = {fromToken: Token.BNB, minuteTolerance: 10,time: new Date()}
+      await controller.queryTokenPriceToUSDAtTime(mockDto)
+      expect(mockPriceService.queryPriceRateAtTime).toBeCalledWith({...mockDto, toToken: Token.USD})
+    })
+  })
 });

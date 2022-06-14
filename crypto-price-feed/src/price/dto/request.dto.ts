@@ -46,3 +46,25 @@ export class QueryPriceRateDto {
   @IsPositive()
   minuteTolerance: number = 15
 }
+
+export class QueryAveragePriceRateDto {
+  @IsToken()
+  fromToken: Token;
+
+  @IsToken()
+  toToken: Token;
+
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  @ApiProperty({example: '2022-06-01T00:00:00Z'})
+  startTime: Date;
+
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  @ApiProperty({example: '2022-06-01T00:00:00Z'})
+  endTime: Date = new Date();
+
+  @IsOptional()
+  @IsPositive()
+  minuteTolerance: number = 15
+}

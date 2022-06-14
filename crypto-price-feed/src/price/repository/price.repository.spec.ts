@@ -104,4 +104,11 @@ describe('PriceRepository', () => {
       expect(mockQueryApi.collectRows).toBeCalledWith(query);
     })
   })
+
+  describe('queryPriceRateAverageWithinTimeSlot', () => {
+    it('should query the average at the time slot', async() => {
+
+    })
+  })
+
 });
