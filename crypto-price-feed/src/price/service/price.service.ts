@@ -12,7 +12,7 @@ import { PriceRepository } from '../repository';
 @Injectable()
 @ClassLogger()
 export class PriceService {
-  constructor(private priceRepository: PriceRepository) {}
+  constructor(private priceRepository: PriceRepository) { }
 
   async savePriceRates(savePriceRateDtos: SavePriceRateDto[]) {
     return this.priceRepository.savePriceRates(savePriceRateDtos);
@@ -36,9 +36,8 @@ export class PriceService {
     );
     if (!result?.length)
       throw new NotFoundException(
-        `Price Not Found for ${queryPriceRateDto.fromToken}/${
-          queryPriceRateDto.toToken
-        } at ${queryPriceRateDto.time.toLocaleString()}`,
+        `Price Not Found for ${queryPriceRateDto.fromToken}/${queryPriceRateDto.toToken
+        } at ${queryPriceRateDto.time.toISOString()}`,
       );
     return new PriceRateDto(result[0]);
   }
@@ -52,9 +51,8 @@ export class PriceService {
       );
     if (!result?.length)
       throw new NotFoundException(
-        `Price Not Found for ${queryAveragePriceRateDto.fromToken}/${
-          queryAveragePriceRateDto.toToken
-        } at ${queryAveragePriceRateDto.startTime.toLocaleString()} - ${queryAveragePriceRateDto.endTime.toLocaleString()}`,
+        `Price Not Found for ${queryAveragePriceRateDto.fromToken}/${queryAveragePriceRateDto.toToken
+        } at ${queryAveragePriceRateDto.startTime.toISOString()} - ${queryAveragePriceRateDto.endTime.toISOString()}`,
       );
     return new AveragePriceRateDto(result[0]);
   }

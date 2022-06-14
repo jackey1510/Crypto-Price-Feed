@@ -3,13 +3,13 @@ import { Controller, Get, Query } from '@nestjs/common';
 import {
   PriceRateDto,
   QueryAverageUSDPriceRateDto,
-  QueryUSDPriceRateDto,
+  QueryUSDPriceRateDto
 } from './dto';
 import { PriceService } from './service';
 
 @Controller('price')
 export class PriceController {
-  constructor(private priceService: PriceService) {}
+  constructor(private priceService: PriceService) { }
 
   @Get('/latestUSDRate')
   async queryLatestTokenPriceToUSD(
