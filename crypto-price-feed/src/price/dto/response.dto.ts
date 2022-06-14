@@ -24,3 +24,19 @@ export class PriceRateDto {
     this.time = pricePairResultDto._time;
   }
 }
+
+export class AveragePriceRateDto {
+  fromToken: Token;
+  toToken: Token;
+  price: number;
+  startTime: Date;
+  endTime: Date;
+
+  constructor(pricePairResultDto: PricePairResultDto) {
+    this.fromToken = pricePairResultDto._measurement;
+    this.toToken = pricePairResultDto._field;
+    this.price = pricePairResultDto._value;
+    this.startTime = pricePairResultDto._start;
+    this.endTime = pricePairResultDto._stop;
+  }
+}

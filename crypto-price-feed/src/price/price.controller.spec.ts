@@ -11,6 +11,7 @@ describe('PriceController', () => {
     mockPriceService = {
       queryLatestPriceRate: jest.fn(),
       queryPriceRateAtTime: jest.fn(),
+      queryPriceRateAverageWithinTimeSlot: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [{ provide: PriceService, useValue: mockPriceService }],
@@ -42,9 +43,30 @@ describe('PriceController', () => {
       jest.useRealTimers();
     })
     it('should call priceService.queryTokenPriceToUSDAtTime', async () => {
-      const mockDto = {fromToken: Token.BNB, minuteTolerance: 10,time: new Date()}
+      const mockDto = { fromToken: Token.BNB, minuteTolerance: 10, time: new Date() }
       await controller.queryTokenPriceToUSDAtTime(mockDto)
-      expect(mockPriceService.queryPriceRateAtTime).toBeCalledWith({...mockDto, toToken: Token.USD})
+      expect(mockPriceService.queryPriceRateAtTime).toBeCalledWith({ ...mockDto, toToken: Token.USD })
     })
   })
+
+  describe('averageUSDRate', () => {
+    beforeEach(() => {
+      jest.useFakeTimers('modern');
+    });
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+    it('should call priceService.queryTokenPriceToUSDAtTime', async () => {
+      const mockDto = {
+        fromToken: Token.BNB,
+        startTime: new Date(),
+        endTime: new Date('2011')
+      };
+      await controller.queryAverageUSDRate(mockDto);
+      expect(mockPriceService.queryPriceRateAverageWithinTimeSlot).toBeCalledWith({
+        ...mockDto,
+        toToken: Token.USD,
+      });
+    });
+  });
 });

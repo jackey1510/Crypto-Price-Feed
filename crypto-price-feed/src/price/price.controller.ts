@@ -1,6 +1,10 @@
 import { Token } from '@common';
 import { Controller, Get, Query } from '@nestjs/common';
-import { PriceRateDto, QueryUSDPriceRateDto } from './dto';
+import {
+  PriceRateDto,
+  QueryAverageUSDPriceRateDto,
+  QueryUSDPriceRateDto,
+} from './dto';
 import { PriceService } from './service';
 
 @Controller('price')
@@ -18,6 +22,19 @@ export class PriceController {
   async queryTokenPriceToUSDAtTime(
     @Query() queryUSDPriceRateDto: QueryUSDPriceRateDto,
   ): Promise<PriceRateDto> {
-    return this.priceService.queryPriceRateAtTime({...queryUSDPriceRateDto, toToken: Token.USD});
+    return this.priceService.queryPriceRateAtTime({
+      ...queryUSDPriceRateDto,
+      toToken: Token.USD,
+    });
+  }
+
+  @Get('/averageUSDRate')
+  async queryAverageUSDRate(
+    @Query() queryAverageUSDPriceRateDto: QueryAverageUSDPriceRateDto,
+  ) {
+    return this.priceService.queryPriceRateAverageWithinTimeSlot({
+      ...queryAverageUSDPriceRateDto,
+      toToken: Token.USD,
+    });
   }
 }

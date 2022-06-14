@@ -3,8 +3,12 @@ import { InfluxConfig } from '@config';
 import { InfluxClient } from '@database';
 import { QueryApi, WriteApi } from '@influxdata/influxdb-client';
 import { Test, TestingModule } from '@nestjs/testing';
-import { QueryPriceRateDto, SavePriceRateDto } from '../dto';
-import { getPointFromSavePriceRateDto } from './';
+import { RepositoryUtil } from '.';
+import {
+  QueryAveragePriceRateDto,
+  QueryPriceRateDto,
+  SavePriceRateDto,
+} from '../dto';
 import { PriceRepository } from './price.repository';
 
 describe('PriceRepository', () => {
@@ -17,10 +21,11 @@ describe('PriceRepository', () => {
   };
   let mockQueryApi: Partial<QueryApi>;
   let mockWriteApi: Partial<WriteApi>;
+  const repositoryUtil: RepositoryUtil = new RepositoryUtil();
 
   beforeEach(async () => {
     mockQueryApi = {
-      collectRows: jest.fn().mockResolvedValue({}),
+      collectRows: jest.fn().mockResolvedValue([]),
     };
     mockWriteApi = {
       writePoints: jest.fn(),
@@ -34,6 +39,7 @@ describe('PriceRepository', () => {
       providers: [
         PriceRepository,
         { provide: InfluxClient, useValue: mockInfluxClient },
+        { provide: 'RepositoryUtil', useValue: repositoryUtil },
       ],
     }).compile();
 
@@ -57,7 +63,7 @@ describe('PriceRepository', () => {
                   |> limit(n:1, offset: 0)
                   |> yield(name: \"last\")`,
       );
-      expect(res).toEqual({});
+      expect(res).toEqual([]);
     });
   });
 
@@ -71,7 +77,9 @@ describe('PriceRepository', () => {
           timestamp: new Date(),
         },
       ];
-      const points = priceRates.map(getPointFromSavePriceRateDto);
+      const points = priceRates.map(
+        repositoryUtil.getPointFromSavePriceRateDto,
+      );
       await repository.savePriceRates(priceRates);
       expect(mockWriteApi.writePoints).toBeCalledWith(points);
       expect(mockWriteApi.close).toBeCalledTimes(1);
@@ -79,36 +87,64 @@ describe('PriceRepository', () => {
   });
 
   describe('queryPriceRateAtTime', () => {
-    beforeEach(()=> {
+    beforeEach(() => {
       jest.useFakeTimers('modern');
-    })
+    });
     it('should query the at the time range', async () => {
       const mockPayload: QueryPriceRateDto = {
         fromToken: Token.BNB,
         toToken: Token.USD,
         time: new Date(),
-        minuteTolerance: 15
-      }
+        minuteTolerance: 15,
+      };
 
-      const start = new Date(mockPayload.time.getTime() - mockPayload.minuteTolerance * 60 * 1000);
+      const start = new Date(
+        mockPayload.time.getTime() - mockPayload.minuteTolerance * 60 * 1000,
+      );
+      const end = new Date(
+        mockPayload.time.getTime() + mockPayload.minuteTolerance * 60 * 1000,
+      );
       const query = `
       from(bucket: "price")
-      |> range(start: ${start.toISOString()}, stop: ${mockPayload.time.toISOString()})
+      |> range(start: ${start.toISOString()}, stop: ${end.toISOString()})
       |> filter(fn: (r) => r["_measurement"] == "${mockPayload.fromToken}")
-      |> filter(fn: (r) => r["_field"] == "USD")
-      |> aggregateWindow(every: 10s, fn: last, createEmpty: false)
-      |> sort(columns: ["_time"], desc: true)
-      |> limit(n:1, offset: 0)
-      |> yield(name: "last")`
+      |> filter(fn: (r) => r["_field"] == "${mockPayload.toToken}")
+      |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)
+      |> limit(n:100, offset: 0)
+      |> yield(name: "mean")`;
       await repository.queryPriceRateAtTime(mockPayload);
       expect(mockQueryApi.collectRows).toBeCalledWith(query);
-    })
-  })
+    });
+  });
 
   describe('queryPriceRateAverageWithinTimeSlot', () => {
-    it('should query the average at the time slot', async() => {
+    it('should query the average at the time slot', async () => {
+      const queryAveragePriceRateDto: QueryAveragePriceRateDto = {
+        fromToken: Token.BTC,
+        toToken: Token.USD,
+        startTime: new Date('2022-05-01'),
+        endTime: new Date('2022-06-01'),
+      };
 
-    })
-  })
+      const { endTime, fromToken, startTime, toToken } =
+        queryAveragePriceRateDto;
 
+      const window = Math.floor(
+        (endTime.getTime() - startTime.getTime()) / 1000,
+      );
+
+      const query = `
+      from(bucket: "price")
+      |> range(start: ${startTime.toISOString()}, stop: ${endTime.toISOString()})
+      |> filter(fn: (r) => r["_measurement"] == "${fromToken}")
+      |> filter(fn: (r) => r["_field"] == "${toToken}")
+      |> aggregateWindow(every: ${window}s, fn: mean, createEmpty: false)
+      |> yield(name: "mean")`;
+
+      await repository.queryPriceRateAverageWithinTimeSlot(
+        queryAveragePriceRateDto,
+      );
+      expect(mockQueryApi.collectRows).toBeCalledWith(query);
+    });
+  });
 });

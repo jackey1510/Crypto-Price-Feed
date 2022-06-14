@@ -1,6 +1,12 @@
 import { ClassLogger, Token } from '@common';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PriceRateDto, QueryPriceRateDto, SavePriceRateDto } from '../dto';
+import {
+  AveragePriceRateDto,
+  PriceRateDto,
+  QueryAveragePriceRateDto,
+  QueryPriceRateDto,
+  SavePriceRateDto,
+} from '../dto';
 import { PriceRepository } from '../repository';
 
 @Injectable()
@@ -22,14 +28,34 @@ export class PriceService {
       );
     return new PriceRateDto(result[0]);
   }
-  async queryPriceRateAtTime(queryPriceRateDto: QueryPriceRateDto): Promise<PriceRateDto> {
+  async queryPriceRateAtTime(
+    queryPriceRateDto: QueryPriceRateDto,
+  ): Promise<PriceRateDto> {
     const result = await this.priceRepository.queryPriceRateAtTime(
-      queryPriceRateDto
+      queryPriceRateDto,
     );
     if (!result?.length)
       throw new NotFoundException(
-        `Price Not Found for ${queryPriceRateDto.fromToken}/${queryPriceRateDto.toToken} at ${queryPriceRateDto.time}`,
+        `Price Not Found for ${queryPriceRateDto.fromToken}/${
+          queryPriceRateDto.toToken
+        } at ${queryPriceRateDto.time.toLocaleString()}`,
       );
     return new PriceRateDto(result[0]);
+  }
+
+  async queryPriceRateAverageWithinTimeSlot(
+    queryAveragePriceRateDto: QueryAveragePriceRateDto,
+  ): Promise<AveragePriceRateDto> {
+    const result =
+      await this.priceRepository.queryPriceRateAverageWithinTimeSlot(
+        queryAveragePriceRateDto,
+      );
+    if (!result?.length)
+      throw new NotFoundException(
+        `Price Not Found for ${queryAveragePriceRateDto.fromToken}/${
+          queryAveragePriceRateDto.toToken
+        } at ${queryAveragePriceRateDto.startTime.toLocaleString()} - ${queryAveragePriceRateDto.endTime.toLocaleString()}`,
+      );
+    return new AveragePriceRateDto(result[0]);
   }
 }

@@ -21,13 +21,13 @@ export class QueryUSDPriceRateDto {
 
   @Transform(({ value }) => new Date(value))
   @IsDate()
-  @ApiProperty({example: '2022-06-01T00:00:00Z'})
+  @ApiProperty({ example: '2022-06-01T00:00:00Z' })
   time: Date;
 
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsInt()
-  minuteTolerance: number = 15
+  minuteTolerance: number = 15;
 }
 
 export class QueryPriceRateDto {
@@ -39,12 +39,26 @@ export class QueryPriceRateDto {
 
   @Transform(({ value }) => new Date(value))
   @IsDate()
-  @ApiProperty({example: '2022-06-01T00:00:00Z'})
+  @ApiProperty({ example: '2022-06-01T00:00:00Z' })
   time: Date;
 
   @IsOptional()
   @IsPositive()
-  minuteTolerance: number = 15
+  minuteTolerance: number = 15;
+}
+
+export class QueryAverageUSDPriceRateDto {
+  @IsToken()
+  fromToken: Token;
+
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  @ApiProperty({ example: '2022-06-01T00:00:00Z' })
+  startTime: Date;
+
+  @Transform(({ value }) => new Date(value))
+  @IsDate()
+  endTime: Date = new Date();
 }
 
 export class QueryAveragePriceRateDto {
@@ -56,15 +70,10 @@ export class QueryAveragePriceRateDto {
 
   @Transform(({ value }) => new Date(value))
   @IsDate()
-  @ApiProperty({example: '2022-06-01T00:00:00Z'})
+  @ApiProperty({ example: '2022-06-01T00:00:00Z' })
   startTime: Date;
 
   @Transform(({ value }) => new Date(value))
   @IsDate()
-  @ApiProperty({example: '2022-06-01T00:00:00Z'})
   endTime: Date = new Date();
-
-  @IsOptional()
-  @IsPositive()
-  minuteTolerance: number = 15
 }
