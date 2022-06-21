@@ -37,7 +37,7 @@ describe('PriceController', () => {
 
   describe('queryTokenPriceToUSDAtTime', () => {
     beforeEach(() => {
-      jest.useFakeTimers('modern')
+      jest.useFakeTimers();
     })
     afterEach(() => {
       jest.useRealTimers();
@@ -51,7 +51,7 @@ describe('PriceController', () => {
 
   describe('averageUSDRate', () => {
     beforeEach(() => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
     });
     afterEach(() => {
       jest.useRealTimers();

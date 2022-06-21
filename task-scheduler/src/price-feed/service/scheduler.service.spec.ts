@@ -13,7 +13,7 @@ describe('SchedulerService', () => {
   let jobMap: Map<string, CronJob>;
 
   beforeEach(async () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
     jobMap = new Map();
     mockSchedulerRegistry = {
       addCronJob: jest.fn().mockImplementation((name, job) => {

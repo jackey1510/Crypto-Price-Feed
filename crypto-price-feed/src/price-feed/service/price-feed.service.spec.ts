@@ -26,7 +26,7 @@ describe('PriceFeedService', () => {
     jest
       .spyOn(LoggerFactory, 'getLogger')
       .mockReturnValue({ log: jest.fn(), error: jest.fn() } as any);
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
     const timestamp = Math.floor(Date.now() / 1000);
     mockLatestRoundData = [
       BigNumber.from(1),

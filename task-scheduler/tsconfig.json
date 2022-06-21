@@ -24,11 +24,9 @@
     "baseUrl": ".",
     "paths": {
       "@config": ["src/config"],
-      "@database": ["src/database"],
       "@common": ["src/common"],
-      "@price": ["src/price"]
     }
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "./test/**/*.ts"]
 }

@@ -9,7 +9,7 @@ describe('RepositoryUtil', () => {
   });
 
   beforeEach(() => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
   });
 
   afterEach(() => {

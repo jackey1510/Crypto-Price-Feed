@@ -88,7 +88,7 @@ describe('PriceRepository', () => {
 
   describe('queryPriceRateAtTime', () => {
     beforeEach(() => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
     });
     it('should query the at the time range', async () => {
       const mockPayload: QueryPriceRateDto = {

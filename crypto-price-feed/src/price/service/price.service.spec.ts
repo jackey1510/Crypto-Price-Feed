@@ -25,7 +25,7 @@ describe('PriceService', () => {
   };
 
   beforeEach(async () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
 
     mockPriceRepository = {
       queryLatestPriceRate: jest.fn().mockResolvedValue([mockPricePairResult]),

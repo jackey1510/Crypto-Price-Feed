@@ -7,7 +7,7 @@ describe('AppController', () => {
   const now = Date.now();
 
   beforeEach(async () => {
-    jest.useFakeTimers('modern').setSystemTime(now);
+    jest.useFakeTimers().setSystemTime(now);
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
     }).compile();

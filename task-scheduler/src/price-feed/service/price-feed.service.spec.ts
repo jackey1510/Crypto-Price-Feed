@@ -11,7 +11,7 @@ describe('PriceFeedService', () => {
   let mockCryptoPriceFeedConfig: Partial<CryptoPriceFeedConfig>;
 
   beforeEach(async () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
     mockHttpService = {
       request: jest.fn().mockReturnValue(of({ status: 200 })),
     };
